@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.cr7.bagpack.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" >
+
+        <action
+            android:id="@+id/action_homeFragment_to_tripPlanningFragment"
+            app:destination="@id/tripPlanningFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/packingListFragment"
+        android:name="com.cr7.bagpack.PackingListFragment"
+        android:label="@string/packing_list"
+        tools:layout="@layout/fragment_packing_list" />
+
+    <fragment
+        android:id="@+id/tripPlanningFragment"
+        android:name="com.cr7.bagpack.TripPlanningFragment"
+        android:label="Trip Planning"
+        tools:layout="@layout/fragment_trip_planning" />
+
+    <fragment
+        android:id="@+id/expenseTrackerFragment"
+        android:name="com.cr7.bagpack.ExpenseTrackerFragment"
+        android:label="Expense Tracker"
+        tools:layout="@layout/fragment_expense_tracker" />
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="com.cr7.bagpack.CalendarFragment"
+        android:label="Calendar"
+        tools:layout="@layout/fragment_calendar" />
+</navigation>
