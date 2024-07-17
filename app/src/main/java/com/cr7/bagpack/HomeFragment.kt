@@ -5,8 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.cr7.bagpack.databinding.FragmentHomeBinding
 import androidx.navigation.fragment.findNavController
+import com.cr7.bagpack.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 
@@ -21,17 +21,32 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up the button click listener to navigate to TripPlanningFragment
+        // Trip Planning Button (Existing)
         binding.btnTripPlanning.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_tripPlanningFragment)
         }
+
+        // Calendar Button
+        binding.btnCalendar.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_calendarFragment)
+        }
+
+        // Packing List Button
+        binding.btnPackingList.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_packingListFragment)
+        }
+
+        // Expense Tracker Button
+        binding.btnExpenseTracker.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_expenseTrackerFragment)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

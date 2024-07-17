@@ -1,68 +1,62 @@
 package com.cr7.bagpack
 
+import android.app.AlertDialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ExpenseTrackerFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ExpenseTrackerFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var expenseAdapter: ExpenseAdapter
+    private val expenseList = mutableListOf<Expense>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_expense_tracker, container, false)
+        val view = inflater.inflate(R.layout.fragment_expense_tracker, container, false)
+
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        expenseAdapter = ExpenseAdapter(expenseList)
+        recyclerView.adapter = expenseAdapter
+
+        val fab: FloatingActionButton = view.findViewById(R.id.fab_add_expence)
+        fab.setOnClickListener {
+            showAddExpenseDialog()
+        }
+
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ExpenseTrackerFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ExpenseTrackerFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun showAddExpenseDialog() {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_expense, null)
+        val editTextExpenseType: EditText = dialogView.findViewById(R.id.editTextExpenseType)
+        val editTextExpenseAmount: EditText = dialogView.findViewById(R.id.editTextExpenseAmount)
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle("Add Expense")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                val type = editTextExpenseType.text.toString()
+                val amount = editTextExpenseAmount.text.toString().toDoubleOrNull()
+
+                if (type.isNotEmpty() && amount != null) {
+                    expenseList.add(Expense(type, amount))
+                    expenseAdapter.notifyItemInserted(expenseList.size - 1)
+                } else {
+                    Toast.makeText(context, "Please enter valid data", Toast.LENGTH_SHORT).show()
                 }
             }
-        class ExpenseTrackerFragment : Fragment() {
+            .setNegativeButton("Cancel", null)
+            .create()
 
-            override fun onCreateView(
-                inflater: LayoutInflater, container: ViewGroup?,
-                savedInstanceState: Bundle?
-            ): View? {
-                return inflater.inflate(R.layout.fragment_expense_tracker, container, false)
-            }
-        }
+        dialog.show()
     }
 }

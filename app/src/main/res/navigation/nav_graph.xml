@@ -14,12 +14,24 @@
         <action
             android:id="@+id/action_homeFragment_to_tripPlanningFragment"
             app:destination="@id/tripPlanningFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_calendarFragment"
+            app:destination="@id/calendarFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_packingListFragment"
+            app:destination="@id/packingListFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_expenseTrackerFragment"
+            app:destination="@id/expenseTrackerFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/packingListFragment"
         android:name="com.cr7.bagpack.PackingListFragment"
-        android:label="@string/packing_list"
+        android:label="Packing List"
         tools:layout="@layout/fragment_packing_list" />
 
     <fragment
@@ -33,9 +45,11 @@
         android:name="com.cr7.bagpack.ExpenseTrackerFragment"
         android:label="Expense Tracker"
         tools:layout="@layout/fragment_expense_tracker" />
+
     <fragment
         android:id="@+id/calendarFragment"
         android:name="com.cr7.bagpack.CalendarFragment"
         android:label="Calendar"
         tools:layout="@layout/fragment_calendar" />
+
 </navigation>

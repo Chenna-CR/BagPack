@@ -1,71 +1,73 @@
 package com.cr7.bagpack
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.cr7.bagpack.databinding.FragmentTripPlanningBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [TripPlanningFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class TripPlanningFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding: FragmentTripPlanningBinding
+    private lateinit var adapter: TripPlanningAdapter
+    private val itemList = mutableListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_trip_planning, container, false)
-    }
+        binding = FragmentTripPlanningBinding.inflate(inflater, container, false)
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment TripPlanningFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            TripPlanningFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        adapter = TripPlanningAdapter(itemList)
+        binding.recyclerView.adapter = adapter
 
-
-        class TripPlanningFragment : Fragment() {
-
-            override fun onCreateView(
-                inflater: LayoutInflater, container: ViewGroup?,
-                savedInstanceState: Bundle?
-            ): View? {
-                return inflater.inflate(R.layout.fragment_trip_planning, container, false)
-            }
+        binding.fabAddItem.setOnClickListener {
+            showAddItemDialog()
         }
 
+        return binding.root
+    }
+
+    private fun showAddItemDialog() {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_trip_item, null)
+        val editTextTripItem: EditText = dialogView.findViewById(R.id.editTextTripItem)
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle("Add Trip Item")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                val item = editTextTripItem.text.toString()
+                if (item.isNotEmpty()) {
+                    addItem(item)
+                } else {
+                    Toast.makeText(context, "Item cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.show()
+    }
+
+    private fun addItem(item: String) {
+        itemList.add(item)
+        adapter.notifyItemInserted(itemList.size - 1)
+    }
+
+    private fun updateItem(position: Int, newItem: String) {
+        itemList[position] = newItem
+        adapter.notifyItemChanged(position)
+    }
+
+    private fun deleteItem(position: Int) {
+        itemList.removeAt(position)
+        adapter.notifyItemRemoved(position)
     }
 }
