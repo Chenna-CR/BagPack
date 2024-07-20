@@ -27,5 +27,5 @@
     android:layout_height="wrap_content"
     android:layout_gravity="end"
     android:id="@+id/fab_add_item"
-    />
+    android:src="@drawable/pack"/>
 </LinearLayout>
