@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.cr7.bagpack.database.TripsDatabase
 import com.cr7.bagpack.databinding.DialogAddTripDetailsBinding
 import com.cr7.bagpack.databinding.FragmentCalendarBinding
 import com.cr7.bagpack.dataclasses.TripDataClass
@@ -32,6 +33,8 @@ class CalendarFragment : Fragment() {
     private var param2: String? = null
     private var binding: FragmentCalendarBinding? = null
     var simpleDateFormat = SimpleDateFormat("dd MMM yyyy")
+    var database : TripsDatabase?= null
+    var tripsDetails = arrayListOf<TripDataClass>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +55,7 @@ class CalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        database = TripsDatabase.getInstance(requireContext())
         val date = Date()
         date.time = System.currentTimeMillis()
         val startCal = Calendar.getInstance()
@@ -102,7 +106,7 @@ class CalendarFragment : Fragment() {
                 DatePickerDialog(
                     requireContext(), { _, year, month, date ->
                         startDate.set(year, month, date)
-                        dialogBinding.etStartDate?.setText(simpleDateFormat.format(startDate))
+                        dialogBinding.etStartDate?.setText(simpleDateFormat.format(startDate.time))
                     },
                     startDate.get(Calendar.YEAR),
                     startDate.get(Calendar.MONTH),
@@ -113,7 +117,7 @@ class CalendarFragment : Fragment() {
                 DatePickerDialog(
                     requireContext(), { _, year, month, date ->
                         endDate.set(year, month, date)
-                        dialogBinding.etEndDate?.setText(simpleDateFormat.format(startDate))
+                        dialogBinding.etEndDate?.setText(simpleDateFormat.format(endDate.time))
                     },
                     startDate.get(Calendar.YEAR),
                     startDate.get(Calendar.MONTH),
@@ -128,12 +132,17 @@ class CalendarFragment : Fragment() {
                 } else if (dialogBinding.etEndDate.text.toString().isNullOrEmpty()) {
                     dialogBinding.etName.error = resources.getString(R.string.enter_end_date)
                 } else{
-                    var tripDataClass = TripDataClass(name = dialogBinding.etName.text.toString()
-                    )
+                    var tripDataClass = TripDataClass(name = dialogBinding.etName.text.toString(), startingDate = startDate.time, endingDate = endDate.time)
+                    database?.tripsDaoInterface()?.insertTripsDetails(tripDataClass)
+                    getTrips()
                 }
             }
         }
 
+    }
+
+    fun getTrips(){
+        tripsDetails.addAll(database?.tripsDaoInterface()?.getTripsList()?: arrayListOf())
     }
 
     companion object {
