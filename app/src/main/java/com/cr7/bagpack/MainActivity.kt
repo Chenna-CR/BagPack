@@ -26,17 +26,15 @@ class MainActivity : AppCompatActivity() {
 
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-navController.addOnDestinationChangedListener{_, destination, _ ->
-    when(destination.id){
-        R.id.homeFragment-> binding.tittleToolbar.setText("Bagpack")
-        R.id.packingListFragment -> binding.tittleToolbar.setText("Packing List")
-        R.id.tripPlanningFragment -> binding.tittleToolbar.setText("Trip Planning")
-        R.id.calendarFragment-> binding.tittleToolbar.setText("Calendar")
-        R.id.expenseTrackerFragment-> binding.tittleToolbar.setText("Expense Tracker")
-    }
-}
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.homeFragment -> binding.tittleToolbar.setText("Bagpack")
+                R.id.packingListFragment -> binding.tittleToolbar.setText("Packing List")
+            }
+        }
 
-}
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         return super.onSupportNavigateUp() || navController.popBackStack()
     }

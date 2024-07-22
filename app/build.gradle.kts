@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("kapt") version "1.5.31"
 }
 
 android {
@@ -54,5 +55,14 @@ dependencies {
     implementation ("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation ("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation ("com.google.android.material:material:1.x.x")
+
+    //room dependencies
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    // To use Kotlin annotation processing tool (kapt)
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    implementation("com.github.tejpratap46:RecyclerCalendarAndroid:2.0.1")
+
 
 }

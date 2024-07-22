@@ -12,7 +12,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?android:attr/textColorHighlight"
+        android:background="@color/light_blue_200"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:title="BagPack"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
