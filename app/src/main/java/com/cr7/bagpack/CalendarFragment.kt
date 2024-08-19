@@ -1,5 +1,6 @@
 package com.cr7.bagpack
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
@@ -7,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.cr7.bagpack.database.TripsDatabase
 import com.cr7.bagpack.databinding.DialogAddTripDetailsBinding
 import com.cr7.bagpack.databinding.FragmentCalendarBinding
@@ -27,7 +29,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [CalendarFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class CalendarFragment : Fragment() {
+class CalendarFragment : Fragment(), TripListAdapter.onClick {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -35,6 +37,8 @@ class CalendarFragment : Fragment() {
     var simpleDateFormat = SimpleDateFormat("dd MMM yyyy")
     var database : TripsDatabase?= null
     var tripsDetails = arrayListOf<TripDataClass>()
+    lateinit var tripListAdapter:TripListAdapter
+    var selectedDate = Date()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,17 +84,23 @@ class CalendarFragment : Fragment() {
                 selectedDate = date,
                 dateSelectListener = object : HorizontalRecyclerCalendarAdapter.OnDateSelected {
                     override fun onDateSelected(date: Date) {
-                        var day = date.day
+                        selectedDate = date
                     }
                 }
             )
 
         binding?.calendarRecyclerView?.adapter = calendarAdapterHorizontal
 
+
+        tripListAdapter=TripListAdapter(requireContext(),tripsDetails,this)
+        binding?.recyclerView?.layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
+        binding?.recyclerView?.adapter=tripListAdapter
+        getTrips()
+//        tripListAdapter.notifyDataSetChanged()
         binding?.fab?.setOnClickListener {
             var dialogBinding = DialogAddTripDetailsBinding.inflate(layoutInflater)
 
-            Dialog(requireContext()).apply {
+            var dialog=Dialog(requireContext()).apply {
                 setContentView(dialogBinding.root)
                 window?.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -103,26 +113,30 @@ class CalendarFragment : Fragment() {
             var startDate = Calendar.getInstance()
             var endDate = Calendar.getInstance()
             dialogBinding.etStartDate.setOnClickListener {
-                DatePickerDialog(
+               var startDateDialog =  DatePickerDialog(
                     requireContext(), { _, year, month, date ->
                         startDate.set(year, month, date)
                         dialogBinding.etStartDate?.setText(simpleDateFormat.format(startDate.time))
                     },
                     startDate.get(Calendar.YEAR),
                     startDate.get(Calendar.MONTH),
-                    startDate.get(Calendar.YEAR)
-                ).show()
+                    startDate.get(Calendar.DAY_OF_MONTH)
+                )
+                startDateDialog.datePicker.setMinDate(startDate.timeInMillis)
+                startDateDialog.show()
             }
             dialogBinding.etEndDate.setOnClickListener {
-                DatePickerDialog(
+                var endDateDialog = DatePickerDialog(
                     requireContext(), { _, year, month, date ->
                         endDate.set(year, month, date)
-                        dialogBinding.etEndDate?.setText(simpleDateFormat.format(endDate.time))
+                        dialogBinding.etEndDate.setText(simpleDateFormat.format(endDate.time))
                     },
-                    startDate.get(Calendar.YEAR),
-                    startDate.get(Calendar.MONTH),
-                    startDate.get(Calendar.YEAR)
-                ).show()
+                    endDate.get(Calendar.YEAR),
+                    endDate.get(Calendar.MONTH),
+                    endDate.get(Calendar.DAY_OF_MONTH)
+                )
+                endDateDialog.datePicker.minDate = startDate.timeInMillis
+                endDateDialog.show()
             }
             dialogBinding.btnAdd.setOnClickListener {
                 if (dialogBinding.etName.text.toString().isNullOrEmpty()) {
@@ -134,6 +148,7 @@ class CalendarFragment : Fragment() {
                 } else{
                     var tripDataClass = TripDataClass(name = dialogBinding.etName.text.toString(), startingDate = startDate.time, endingDate = endDate.time)
                     database?.tripsDaoInterface()?.insertTripsDetails(tripDataClass)
+                    dialog.dismiss()
                     getTrips()
                 }
             }
@@ -142,7 +157,9 @@ class CalendarFragment : Fragment() {
     }
 
     fun getTrips(){
+        tripsDetails.clear()
         tripsDetails.addAll(database?.tripsDaoInterface()?.getTripsList()?: arrayListOf())
+        tripListAdapter.notifyDataSetChanged()
     }
 
     companion object {
@@ -170,8 +187,81 @@ class CalendarFragment : Fragment() {
                 inflater: LayoutInflater, container: ViewGroup?,
                 savedInstanceState: Bundle?
             ): View? {
-
                 return inflater.inflate(R.layout.fragment_calendar, container, false)
+            }
+        }
+    }
+
+    override fun delete(position: Int) {
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle(resources.getString(R.string.delete_trip_details))
+            setMessage(resources.getString(R.string.delete_trip_details_msg))
+            setPositiveButton(resources.getString(R.string.yes)){_,_->
+                database?.tripsDaoInterface()?.deleteTripDetails(tripsDetails[position])
+                getTrips()
+            }
+            setPositiveButton(resources.getString(R.string.no)){_,_->}
+            show()
+        }
+    }
+
+    override fun update(position: Int) {
+        var dialogBinding = DialogAddTripDetailsBinding.inflate(layoutInflater)
+        var dialog=Dialog(requireContext()).apply {
+            setContentView(dialogBinding.root)
+            window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            show()
+        }
+        var startDate = Calendar.getInstance()
+        var endDate = Calendar.getInstance()
+        startDate.time = tripsDetails[position].startingDate
+        endDate.time = tripsDetails[position].endingDate
+        dialogBinding.etName.setText(tripsDetails[position].name)
+        dialogBinding.etStartDate.setOnClickListener {
+            var startDateDialog =  DatePickerDialog(
+                requireContext(), { _, year, month, date ->
+                    startDate.set(year, month, date)
+                    dialogBinding.etStartDate?.setText(simpleDateFormat.format(startDate.time))
+                },
+                startDate.get(Calendar.YEAR),
+                startDate.get(Calendar.MONTH),
+                startDate.get(Calendar.DAY_OF_MONTH)
+            )
+            startDateDialog.datePicker.setMinDate(startDate.timeInMillis)
+            startDateDialog.show()
+        }
+        dialogBinding.etEndDate.setOnClickListener {
+            var endDateDialog = DatePickerDialog(
+                requireContext(), { _, year, month, date ->
+                    endDate.set(year, month, date)
+                    dialogBinding.etEndDate.setText(simpleDateFormat.format(endDate.time))
+                },
+                endDate.get(Calendar.YEAR),
+                endDate.get(Calendar.MONTH),
+                endDate.get(Calendar.DAY_OF_MONTH)
+            )
+            endDateDialog.datePicker.minDate = startDate.timeInMillis
+            endDateDialog.show()
+        }
+
+        dialogBinding.btnAdd.setOnClickListener {
+            if (dialogBinding.etName.text.toString().isNullOrEmpty()) {
+                dialogBinding.etName.error = resources.getString(R.string.add_name)
+            } else if (dialogBinding.etStartDate.text.toString().isNullOrEmpty()) {
+                dialogBinding.etName.error = resources.getString(R.string.enter_start_date)
+            } else if (dialogBinding.etEndDate.text.toString().isNullOrEmpty()) {
+                dialogBinding.etName.error = resources.getString(R.string.enter_end_date)
+            } else{
+                var tripDataClass = TripDataClass(id = tripsDetails[position].id,
+                    name = dialogBinding.etName.text.toString(),
+                    startingDate = startDate.time,
+                    endingDate = endDate.time)
+                database?.tripsDaoInterface()?.updateTripDetailsEntity(tripDataClass)
+                dialog.dismiss()
+                getTrips()
             }
         }
     }

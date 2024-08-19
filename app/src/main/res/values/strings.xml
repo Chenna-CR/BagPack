@@ -15,4 +15,8 @@
     <string name="add_trip">Add Trip</string>
     <string name="enter_start_date">Enter Start Date</string>
     <string name="enter_end_date">Enter End Date</string>
+    <string name="delete_trip_details">Delete Trip Information</string>
+    <string name="delete_trip_details_msg">Do you want to delete the trip information?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
