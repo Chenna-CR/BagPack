@@ -30,6 +30,9 @@ class TripListAdapter(var context: Context,var tripList:ArrayList<TripDataClass>
         holder.delete.setOnClickListener{
             clickInterface.delete(position)
         }
+        holder.itemView.setOnClickListener {
+            clickInterface.onItemClick(position)
+        }
 
     }
 
@@ -40,5 +43,6 @@ class TripListAdapter(var context: Context,var tripList:ArrayList<TripDataClass>
     interface onClick{
         fun delete(position: Int)
         fun update(position: Int)
+        fun onItemClick(position: Int)
     }
 }

@@ -4,10 +4,13 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.cr7.bagpack.database.TripsDatabase
 import com.cr7.bagpack.databinding.DialogAddTripDetailsBinding
@@ -85,6 +88,7 @@ class CalendarFragment : Fragment(), TripListAdapter.onClick {
                 dateSelectListener = object : HorizontalRecyclerCalendarAdapter.OnDateSelected {
                     override fun onDateSelected(date: Date) {
                         selectedDate = date
+                        getTrips()
                     }
                 }
             )
@@ -155,41 +159,27 @@ class CalendarFragment : Fragment(), TripListAdapter.onClick {
         }
 
     }
-
     fun getTrips(){
+
+        val startCalendar = Calendar.getInstance()
+        startCalendar.time = selectedDate // Set your date object here
+
+        startCalendar.set(Calendar.HOUR_OF_DAY, 0)
+        startCalendar.set(Calendar.MINUTE, 0)
+        startCalendar.set(Calendar.SECOND, 0)
+
+        val endCalendar = Calendar.getInstance()
+        endCalendar.time = selectedDate // Set your date object here
+
+        endCalendar.set(Calendar.HOUR_OF_DAY, 23)
+        endCalendar.set(Calendar.MINUTE, 59)
+        endCalendar.set(Calendar.SECOND, 59)
+
+
         tripsDetails.clear()
-        tripsDetails.addAll(database?.tripsDaoInterface()?.getTripsList()?: arrayListOf())
+        Log.e("dates", "getTrips:${startCalendar.time} ,${endCalendar.time} ")
+        tripsDetails.addAll(database?.tripsDaoInterface()?.getTripsListDateWise(startCalendar.timeInMillis, endCalendar.timeInMillis)?: arrayListOf())
         tripListAdapter.notifyDataSetChanged()
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CalendarFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CalendarFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-
-        class CalendarFragment : Fragment() {
-
-            override fun onCreateView(
-                inflater: LayoutInflater, container: ViewGroup?,
-                savedInstanceState: Bundle?
-            ): View? {
-                return inflater.inflate(R.layout.fragment_calendar, container, false)
-            }
-        }
     }
 
     override fun delete(position: Int) {
@@ -200,7 +190,7 @@ class CalendarFragment : Fragment(), TripListAdapter.onClick {
                 database?.tripsDaoInterface()?.deleteTripDetails(tripsDetails[position])
                 getTrips()
             }
-            setPositiveButton(resources.getString(R.string.no)){_,_->}
+            setNegativeButton(resources.getString(R.string.no)){_,_->}
             show()
         }
     }
@@ -220,11 +210,13 @@ class CalendarFragment : Fragment(), TripListAdapter.onClick {
         startDate.time = tripsDetails[position].startingDate
         endDate.time = tripsDetails[position].endingDate
         dialogBinding.etName.setText(tripsDetails[position].name)
+        dialogBinding.etStartDate.setText(SimpleDateFormat("dd MMM yyyy").format(tripsDetails[position].startingDate).toString())
+        dialogBinding.etEndDate.setText(SimpleDateFormat("dd MMM yyyy").format(tripsDetails[position].endingDate).toString())
         dialogBinding.etStartDate.setOnClickListener {
             var startDateDialog =  DatePickerDialog(
                 requireContext(), { _, year, month, date ->
                     startDate.set(year, month, date)
-                    dialogBinding.etStartDate?.setText(simpleDateFormat.format(startDate.time))
+                    dialogBinding.etStartDate.setText(simpleDateFormat.format(startDate.time))
                 },
                 startDate.get(Calendar.YEAR),
                 startDate.get(Calendar.MONTH),
@@ -264,5 +256,9 @@ class CalendarFragment : Fragment(), TripListAdapter.onClick {
                 getTrips()
             }
         }
+    }
+
+    override fun onItemClick(position: Int) {
+        findNavController().navigate(R.id.action_calendarFragment_to_homeFragment, bundleOf("tripId" to tripsDetails[position].id))
     }
 }

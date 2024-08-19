@@ -8,12 +8,14 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.cr7.bagpack.databinding.ActivityMainBinding
+import com.cr7.bagpack.dataclasses.TripDataClass
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
     private lateinit var binding: ActivityMainBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
+    var tripDataClass = TripDataClass()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +32,9 @@ class MainActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.homeFragment -> binding.tittleToolbar.setText("Bagpack")
                 R.id.packingListFragment -> binding.tittleToolbar.setText("Packing List")
+                R.id.tripPlanningFragment->binding.tittleToolbar.setText("Trip planning")
+                R.id.expenseTrackerFragment->binding.tittleToolbar.setText("Expense Tracker")
+                R.id.calendarFragment->binding.tittleToolbar.setText("Calendar")
             }
         }
 

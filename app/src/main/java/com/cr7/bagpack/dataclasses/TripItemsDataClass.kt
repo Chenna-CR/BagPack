@@ -17,6 +17,7 @@ data class TripItemsDataClass(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     var tripId: Int? = 0,
-    var isCompleted: Boolean? = null,
+    var packingItem: String? = null,
+    var isCompleted: Boolean? = false,
     var note: String? = null,
 )
